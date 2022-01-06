@@ -1,5 +1,4 @@
 #########################################################################
-## Always run these lines first 
 library(tibble)
 library(nbastatR)
 library(curl)
@@ -9,7 +8,6 @@ library(bettoR)
 library(MASS)
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 2)
 
-## Run this if team.names doesn't already exist
 ## Getting all of the team names 
 teams=teams_details(all_teams=TRUE)
 team.names=teams[[2]][[1]]
@@ -81,9 +79,7 @@ b=dim(b2b)[1]
 
 bs.1$b2b=b2b[1:(b-2*g),2]
 
-
 #######################################################################
-## Hopefully this will get every teams per game averages into one table
 nba.mat=NULL
 this.season=NULL
 ##2020-21 Season data
@@ -101,26 +97,6 @@ for (i in 1:30) {
   this.season = rbind(this.season, combined[1,])
   nba.mat=rbind(nba.mat,team)
 }
-#load("C:/Users/Factory Settings/OneDrive/Desktop/Bball/nbamat.Rdata")
-
-
-
-
-
-## 2021-22 season data
-#for (i in 1:30) {
-#  full=teams_tables(teams = team.names[i,2], 
-#                    seasons = 2020,
-#                    tables = c("year over year"), 
-#                    measures = c("Base", 'Advanced', 'Opponent'),
-#                    modes = "PerGame",
-#                   season_types = 'Regular Season')
-#  
-# combined=cbind(full[[15]][[1]], full[[15]][[2]], full[[15]][[3]])
-#  team=combined[1,]
-#  
-# this.season=rbind(this.season,team)
-#}
 
 names.vec=team.names[,2]
 nba.mat=cbind(names.vec, nba.mat)
@@ -169,7 +145,6 @@ this.season$lpctOREB = log(this.season$pctOREB)
 this.season$lpctEFG = log(this.season$pctEFG)
 this.season$lpctTS = log(this.season$pctTS)
 
-##First test model for offensive rating
 om.game=lm(ortg ~ lpctFG + lpctFG3 + fta + oreb + ast + stl + pfd + lpctAST +  lpctOREB +
             lpctEFG + lpctTS + pace + ratioPIE + home + b2b, data=bs.1)
 
@@ -177,23 +152,27 @@ dm.game=lm(drtg ~ pctFG + dreb + tov + pf + pctDREB + pctTOVTeam + pace +
              rateFTAOpponent+  pctEFGOpponent + ratioPIE +  home + b2b, data=bs.1)
 
 
-
-
 ##########################################################################
 ##########################################################################
 ## Simulation based estimates for spreads and winners
-
-##Come back to these
-#spreads=get_lines(sport = 'NBA', bet_type = 'spread', 
-#                  period = 'full', start_date = gsub("-", "", today))
-#moneylines=get_lines(sport = 'NBA', bet_type = 'moneyline', 
-#                     period = 'full', start_date = gsub("-", "", today))
 
 omse=sum(om.game$residuals^2)/((n*2)-16)
 dmse=sum(om.game$residuals^2)/((n*2)-12)
 
 reps=1e4
-home.spread=c(-10.5,9,-7.5,-7.5,9,5,-3,-9.5,2.5,2,2.5)
+
+## Home.spread is the point spread for the home team in each game in the order
+## found in todays.games
+## The next 4 are the american odds for each category
+
+home.spread=c()
+hats = c()
+aats = c()
+hml = c()
+aml = c()
+
+## To run the model without gambling information
+## home.spread = hats = aats = hml = aml = rep(0, games)
 
 this.season$pred.o = predict(om.game, newdata = this.season, type = 'response')
 
@@ -270,19 +249,9 @@ for(i in 1:games){
 
 rownames(bet.mat.sim)=home.names
 
-
-
-
-hats = c(-105,-115,-115,-110,-115,-110,-110,-110,-110,-105,-115)
-aats = c(-115,-105,-105,-110,-105,-110,-110,-110,-110,-115,-105)
-hml = c(-535,290,-310,-320,310,165,-150,-445,120,110,120)
-aml = c(385,-380,255,260,-415,-195,130,330,-140,-130,-140)
-
-
 ev.mat=matrix(NA, ncol=4, nrow= games)
 a=100
 k=1
-
 
 for (i in 1:games){
   ev.mat[i,1]=((bet_calc(a, hats[i])-a)*bet.mat.sim[i,4])-a*(1-bet.mat.sim[i,4])
