@@ -8,3 +8,5 @@ A few notes about the model performance
 1: The model is fit using singe game data but the predictions are based off of teams season averages. This means that predicitons are inaccurate when teams are missing key players.
 
 2: In order to save time running the model, box scores are stored in the file "bs.1.csv" and each time the model is run it adds the previous days games. The file inculded here is not a complete list of all NBA games played this season but it is large enough that the missing games are not likely to dramatically change parameter estimates. 
+
+3: This is just a project I did for fun with a friend of mine to see if we could. This is not meant to be taken too seriously.
