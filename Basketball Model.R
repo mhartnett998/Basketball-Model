@@ -21,7 +21,7 @@ todays.games = todays.games[[2]][[3]]
 yesterdays.games = days_scores(game_dates = yesterday, include_standings = F, return_message = T)
 yesterdays.games = yesterdays.games[[2]][[3]]
 
-View(todays.games)
+## View(todays.games)
 
 games = dim(todays.games)[1]
 
@@ -179,9 +179,6 @@ this.season$pred.o = predict(om.game, newdata = this.season, type = 'response')
 teams.last = seq(from = 1, to = 262, by = 9)
 last.season = NULL
 
-
-## This should be good to go
-## Just need to change the matrix with team nums
 team.num.mat = matrix(0, nrow = games, ncol = 2)
 
 #Home teams
