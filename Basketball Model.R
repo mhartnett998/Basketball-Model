@@ -37,6 +37,9 @@ for (i in 1:games){
   away.index[i] = which(ateam == team.names[,3])
 }
 
+## This requires already having current season box scores in a file bs.1.csv
+## Trying to download more than just yesterday's games dramatically increases
+## the model's run time
 bs.1 = read.csv('bs.1.csv')
 bs.1 = bs.1[-1]
 
